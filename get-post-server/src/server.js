@@ -135,7 +135,7 @@ function sendFile(filepath, res) {
             }
         })
         .on('open', () => {
-            res.setHeader('Content-Type', mime.lookup(filepath));
+            res.setHeader('Content-Type', mime.getType(filepath));
         });
 
     res
