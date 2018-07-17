@@ -1,3 +1,4 @@
+'use strict';
 
 const http = require('http');
 const url = require('url');
@@ -43,6 +44,13 @@ function receiveFile(filepath, req, res) {
     let size = 0;
 
     let writeStream = new fs.WriteStream(filepath, {flags: 'wx'});
+
+    /*
+    let emit = req.emit;
+    req.emit = function(e) {
+      console.log(e);
+      return emit.apply(this, arguments);
+    };*/
 
     req
         .on('data', chunk => {

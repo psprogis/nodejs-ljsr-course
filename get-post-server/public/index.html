@@ -7,7 +7,7 @@
 
 <form name="upload">
     <input type="file" name="file">
-    <input type="submit" value="Upload">
+    <input type="submit" value="Загрузить">
 </form>
 
 <script>
@@ -23,7 +23,7 @@
             if (ctx.status == 200) {
                 alert("success");
             } else {
-                alert(`error ${ctx.status} ${ctx.responseText}`);
+                alert("error " + ctx.status + ' ' + ctx.responseText);
             }
         };
 
