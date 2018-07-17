@@ -3,6 +3,7 @@ const url = require('url');
 const path = require('path');
 const fs = require('fs');
 const mime = require('mime');
+const config = require('config');
 
 module.exports = http.createServer((req, res) => {
 
@@ -17,9 +18,9 @@ module.exports = http.createServer((req, res) => {
 
     if (req.method === 'GET') {
         if (pathname === '/') {
-            sendFile(`${process.cwd()}/public/index.html`, res);
+            sendFile(`${config.get('publicRoot')}/index.html`, res);
         } else {
-            let filepath = path.join(`${process.cwd()}/files`, filename);
+            let filepath = path.join(config.get('filesRoot'), filename);
             sendFile(filepath, res);
         }
     }
@@ -31,7 +32,7 @@ module.exports = http.createServer((req, res) => {
         }
     }
 
-    receiveFile(path.join(`${process.cwd()}/files`, filename), req, res);
+    receiveFile(path.join(config.get('filesRoot'), filename), req, res);
 
 });
 
