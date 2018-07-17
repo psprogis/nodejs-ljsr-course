@@ -18,7 +18,9 @@ module.exports = http.createServer((req, res) => {
 
     if (req.method === 'GET') {
         if (pathname === '/') {
-            sendFile(`${config.get('publicRoot')}/index.html`, res);
+            console.log(`pathname: ${pathname}`);
+            // sendFile(`${config.get('publicRoot')}/index.html`, res);
+            sendFile(path.join(config.get('publicRoot'), 'index.html'), res);
         } else {
             let filepath = path.join(config.get('filesRoot'), filename);
             sendFile(filepath, res);
@@ -38,12 +40,12 @@ module.exports = http.createServer((req, res) => {
 
 function receiveFile(filepath, req, res) {
 
-    // non-streaming client sends this
-    // if (req.headers['content-length'] > config.get('limitFileSize')) {
-    //   res.statusCode = 413;
-    //   res.end('File is too big!');
-    //   return;
-    // }
+    // non-streaming client sends ctx
+    if (req.headers['content-length'] > config.get('limitFileSize')) {
+      res.statusCode = 413;
+      res.end('File is too big!');
+      return;
+    }
 
     let size = 0;
     let writeStream = new fs.WriteStream(filepath, {flags: 'wx'});
@@ -118,6 +120,7 @@ function receiveFile(filepath, req, res) {
 }
 
 function sendFile(filepath, res) {
+    console.log(`sending file: ${filepath}`);
     let fileStream = fs.createReadStream(filepath);
 
     fileStream.pipe(res);
