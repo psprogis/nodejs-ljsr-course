@@ -54,7 +54,7 @@ function receiveFile(filepath, req, res) {
 
             console.log('data');
 
-            if (size > 10e6) {
+            if (size > config.get('limitFileSize')) {
 
                 // early connection close before receiving the full request
                 console.log('too big!');
@@ -64,6 +64,9 @@ function receiveFile(filepath, req, res) {
                 // the connection will be kept alive, and the browser will hang (trying to send more data)
                 // this header tells node to close the connection, also see
                 // http://stackoverflow.com/questions/18367824/how-to-cancel-http-upload-from-data-events/18370751#18370751
+                res.setHeader('Connection', 'close');
+
+                // some browsers will handle this as 'CONNECTION RESET' error
                 res.end('File is too big!');
 
                 writeStream.destroy();

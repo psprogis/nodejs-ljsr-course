@@ -20,10 +20,10 @@
 
         const xhr = new XMLHttpRequest();
         xhr.onload = xhr.onerror = function() {
-            if (this.status == 200) {
+            if (this.status === 200) {
                 alert("success");
             } else {
-                alert("error " + this.status + ' ' + this.responseText);
+                alert(`error ${this.status} ${this.responseText}`);
             }
         };
 
