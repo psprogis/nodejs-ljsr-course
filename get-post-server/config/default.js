@@ -1,7 +1,5 @@
-const path = require('path');
-
 module.exports = {
-    publicRoot: path.join(process.cwd(), 'public'),
-    filesRoot: path.join(process.cwd(), 'files'),
+    publicRoot: `${process.cwd()}/public`,
+    filesRoot: `${process.cwd()}/files`,
     limitFileSize: 10e6
 };

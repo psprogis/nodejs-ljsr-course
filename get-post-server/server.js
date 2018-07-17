@@ -1,3 +1,4 @@
+
 const http = require('http');
 const url = require('url');
 const path = require('path');
@@ -8,7 +9,7 @@ const config = require('config');
 module.exports = http.createServer((req, res) => {
 
     let pathname = decodeURI(url.parse(req.url).pathname);
-    let filename = pathname.slice(1); // /file.ext => file.ext
+    let filename = pathname.slice(1); // /file.ext -> file.ext
 
     if (filename.includes('/') || filename.includes('..')) {
         res.statusCode = 400;
@@ -18,9 +19,7 @@ module.exports = http.createServer((req, res) => {
 
     if (req.method === 'GET') {
         if (pathname === '/') {
-            console.log(`pathname: ${pathname}`);
-            // sendFile(`${config.get('publicRoot')}/index.html`, res);
-            sendFile(path.join(config.get('publicRoot'), 'index.html'), res);
+            sendFile(config.get('publicRoot') + '/index.html', res);
         } else {
             let filepath = path.join(config.get('filesRoot'), filename);
             sendFile(filepath, res);
@@ -32,54 +31,48 @@ module.exports = http.createServer((req, res) => {
             res.statusCode = 404;
             res.end('File not found');
         }
-    }
 
-    receiveFile(path.join(config.get('filesRoot'), filename), req, res);
+        receiveFile(path.join(config.get('filesRoot'), filename), req, res);
+    }
 
 });
 
+
 function receiveFile(filepath, req, res) {
 
-    // non-streaming client sends ctx
-    if (req.headers['content-length'] > config.get('limitFileSize')) {
-      res.statusCode = 413;
-      res.end('File is too big!');
-      return;
-    }
-
     let size = 0;
+
     let writeStream = new fs.WriteStream(filepath, {flags: 'wx'});
 
     req
         .on('data', chunk => {
             size += chunk.length;
 
-            console.log('data');
-
             if (size > config.get('limitFileSize')) {
+                // early connection close before recieving the full request
 
-                // early connection close before receiving the full request
                 res.statusCode = 413;
 
                 // if we just res.end w/o connection close, browser may keep on sending the file
                 // the connection will be kept alive, and the browser will hang (trying to send more data)
-                // this header tells node to close the connection, also see
-                // http://stackoverflow.com/questions/18367824/how-to-cancel-http-upload-from-data-events/18370751#18370751
+                // this header tells node to close the connection
+                // also see http://stackoverflow.com/questions/18367824/how-to-cancel-http-upload-from-data-events/18370751#18370751
                 res.setHeader('Connection', 'close');
 
-                // some browsers will handle this as 'CONNECTION RESET' error
-                res.end('File is too big!');
-
                 writeStream.destroy();
-                fl.unlink(filepath, err => {
+                fs.unlink(filepath, err => { // eslint-disable-line
                     // ignore error
-                })
+
+                    // Some browsers will handle this as 'CONNECTION RESET' error
+                    res.end('File is too big!');
+                });
+
             }
         })
         .on('close', () => {
             writeStream.destroy();
-            fs.unlink(filepath, err => {
-                // ingore error
+            fs.unlink(filepath, err => { // eslint-disable-line
+                /* ignore error */
             });
         })
         .pipe(writeStream);
@@ -91,17 +84,17 @@ function receiveFile(filepath, req, res) {
                 res.end('File exists');
             } else {
                 console.error(err);
-
-                if (!res.headerSent) {
-                    res.writeHeader(500, {'Connection': 'close'});
-                    res.write('Internal error');
+                if (!res.headersSent) {
+                    res.writeHead(500, {'Connection': 'close'});
+                    res.end('Internal error');
+                } else {
+                    res.end();
                 }
-
-                fs.unlink(filepath, err => {
-                    // ignore error
-                    res.end()
+                fs.unlink(filepath, err => { // eslint-disable-line
+                    /* ignore error */
                 });
             }
+            res.destroy();
         })
         .on('close', () => {
             // Note: can't use on('finish')
@@ -113,15 +106,23 @@ function receiveFile(filepath, req, res) {
 
             // we must use 'close' event to track if the file has really been written down
             res.end('OK');
+
         });
 
-        res.on('finish', () => console.log('finish'));
+
+    /*
+    let emit = writeStream.emit;
+    writeStream.emit = function(event) {
+      console.log(event);
+      return emit.apply(this, arguments);
+    };
+    */
+
 }
 
-function sendFile(filepath, res) {
-    console.log(`sending file: ${filepath}`);
-    let fileStream = fs.createReadStream(filepath);
 
+function sendFile(filepath, res) {
+    let fileStream = fs.createReadStream(filepath);
     fileStream.pipe(res);
 
     fileStream
@@ -130,14 +131,14 @@ function sendFile(filepath, res) {
                 res.statusCode = 404;
                 res.end('Not found');
             } else {
-                console.log(err);
-
+                console.error(err);
                 if (!res.headersSent) {
                     res.statusCode = 500;
                     res.end('Internal error');
                 } else {
                     res.end();
                 }
+
             }
         })
         .on('open', () => {
@@ -147,5 +148,6 @@ function sendFile(filepath, res) {
     res
         .on('close', () => {
             fileStream.destroy();
-        })
+        });
+
 }
