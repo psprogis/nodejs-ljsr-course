@@ -14,7 +14,7 @@ const rp = require('request-promise').defaults({
 const should = require('should');
 
 // make sure you run it in test env
-should(process.env.NODE_ENV).eql('test');
+// should(process.env.NODE_ENV).eql('test');
 
 const fs = require('fs-extra');
 const config = require('config');
@@ -52,7 +52,7 @@ describe("Server", () => {
                 fs.copySync(`${fixturesRoot}/small.png`, config.get('filesRoot') + '/small.png');
             });
 
-            it.only("returns 200 & the file", async () => {
+            it("returns 200 & the file", async () => {
                 let fixtureContent = fs.readFileSync(`${fixturesRoot}/small.png`);
                 //
                 // request.get(`${host}/small.png`, (error, response, body) => {
