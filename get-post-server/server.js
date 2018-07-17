@@ -59,7 +59,6 @@ function receiveFile(filepath, req, res) {
             if (size > config.get('limitFileSize')) {
 
                 // early connection close before receiving the full request
-                console.log('too big!');
                 res.statusCode = 413;
 
                 // if we just res.end w/o connection close, browser may keep on sending the file

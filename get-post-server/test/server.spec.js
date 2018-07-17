@@ -13,13 +13,14 @@ const request = require('request-promise').defaults({
 const fs = require('fs-extra');
 const config = require('config');
 const Readable = require('stream').Readable;
+const path = require('path');
 
 const host = 'http://127.0.0.1:3000';
 
 const server = require('../server');
 
 // not in config, because many test dirs are possible
-const fixturesRoot = __dirname + '/fixtures';
+const fixturesRoot = path.join(__dirname, 'fixtures');
 
 describe('Server', () => {
     before(done => {
@@ -27,7 +28,7 @@ describe('Server', () => {
     });
 
     after(done => {
-        server.close(done);
+        // server.close(done);
     });
 
     beforeEach(() => {
@@ -47,7 +48,13 @@ describe('Server', () => {
             it('returns 200 & the file', async function () {
                 let fixtureContent = fs.readFileSync(`${fixturesRoot}/small.png`);
 
+                console.log('expected file:');
+                console.log(fixtureContent);
+
                 const response = await request.get(`${host}/small.png`);
+
+                console.log('actual file:');
+                console.log(response);
 
                 response.body.equals(fixtureContent).should.be.true();
             });
