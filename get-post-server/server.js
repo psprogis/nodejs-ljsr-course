@@ -35,9 +35,7 @@ module.exports = http.createServer((req, res) => {
 
         receiveFile(path.join(config.get('filesRoot'), filename), req, res);
     }
-
 });
-
 
 function receiveFile(filepath, req, res) {
 
@@ -57,7 +55,7 @@ function receiveFile(filepath, req, res) {
             size += chunk.length;
 
             if (size > config.get('limitFileSize')) {
-                // early connection close before recieving the full request
+                // early connection close before receiving the full request
 
                 res.statusCode = 413;
 
@@ -74,7 +72,6 @@ function receiveFile(filepath, req, res) {
                     // Some browsers will handle this as 'CONNECTION RESET' error
                     res.end('File is too big!');
                 });
-
             }
         })
         .on('close', () => {
@@ -114,9 +111,7 @@ function receiveFile(filepath, req, res) {
 
             // we must use 'close' event to track if the file has really been written down
             res.end('OK');
-
         });
-
 
     /*
     let emit = writeStream.emit;
@@ -125,9 +120,7 @@ function receiveFile(filepath, req, res) {
       return emit.apply(this, arguments);
     };
     */
-
 }
-
 
 function sendFile(filepath, res) {
     let fileStream = fs.createReadStream(filepath);
@@ -146,7 +139,6 @@ function sendFile(filepath, res) {
                 } else {
                     res.end();
                 }
-
             }
         })
         .on('open', () => {
@@ -157,5 +149,4 @@ function sendFile(filepath, res) {
         .on('close', () => {
             fileStream.destroy();
         });
-
 }

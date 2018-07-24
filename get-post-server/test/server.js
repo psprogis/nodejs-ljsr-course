@@ -9,6 +9,7 @@ const request = require('request-promise').defaults({
     simple: false,
     resolveWithFullResponse: true
 });
+const assert = require('assert');
 
 const fs = require('fs-extra');
 const config = require('config');
@@ -20,6 +21,9 @@ const server = require('../server');
 
 // not in config, because many test dirs are possible
 const fixturesRoot = __dirname + '/fixtures';
+
+assert.equal(process.env.NODE_ENV, 'test', 'test should be run in test env, set NODE_ENV to test');
+console.log(`file root dir: ${config.get('filesRoot')}`);
 
 describe('Server', () => {
     before(done => {
@@ -38,9 +42,6 @@ describe('Server', () => {
 
         context('When exists', () => {
             beforeEach(() => {
-                // 'before' will not do here,
-                // because it works 'before tests'
-                // and parent beforeEach works 'before each test', that is after before
                 fs.copySync(`${fixturesRoot}/small.png`, config.get('filesRoot') + '/small.png');
             });
 
@@ -112,8 +113,6 @@ describe('Server', () => {
                         response.statusCode.should.be.equal(409);
                     });
                 });
-
-
             });
 
             context('When too big', () => {
@@ -143,7 +142,6 @@ describe('Server', () => {
 
                     fs.existsSync(config.get('filesRoot') + '/big.png').should.be.false();
                 });
-
             });
         });
 
@@ -181,8 +179,5 @@ describe('Server', () => {
                 ).should.be.true();
             });
         });
-
     });
-
-
 });
