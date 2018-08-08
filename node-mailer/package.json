@@ -7,8 +7,16 @@
     "test": ""
   },
   "dependencies": {
+    "aws": "0.0.3-2",
     "config": "^2.0.1",
-    "mongoose": "^5.2.7"
+    "juice": "^4.3.2",
+    "mongoose": "^5.2.7",
+    "nodemailer": "^4.6.7",
+    "nodemailer-html-to-text": "^3.0.0",
+    "nodemailer-ses-transport": "^1.5.1",
+    "nodemailer-smtp-transport": "^2.7.4",
+    "nodemailer-stub-transport": "^1.1.0",
+    "pug": "^2.0.3"
   },
   "keywords": [],
   "author": "",
